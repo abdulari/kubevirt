@@ -24,6 +24,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
@@ -108,6 +109,10 @@ func onDefineDomain(vmiJSON []byte, domainXML []byte) ([]byte, error) {
 	}
 
 	annotations := vmiSpec.GetAnnotations()
+	for k, v := range annotations {
+		log.Log.Info(k)
+		log.Log.Info(v)
+	}
 
 	if _, found := annotations[baseBoardManufacturerAnnotation]; !found {
 		log.Log.Info("SM BIOS hook sidecar was requested, but no attributes provided. Returning original domain spec")
@@ -139,6 +144,10 @@ func onDefineDomain(vmiJSON []byte, domainXML []byte) ([]byte, error) {
 		log.Log.Reason(err).Errorf("Failed to marshal updated domain spec: %+v", domainSpec)
 		panic(err)
 	}
+	file, _ := json.MarshalIndent(domainSpec, "", " ")
+	_ = ioutil.WriteFile("test.json", file, 0644)
+	log.Log.Info("arif is here")
+	log.Log.Info(string(newDomainXML[:]))
 
 	log.Log.Info("Successfully updated original domain spec with requested SMBIOS attributes")
 
